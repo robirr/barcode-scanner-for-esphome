@@ -13,11 +13,11 @@ substitutions:
   ssd1306_i2c_address: "0x3C"
 
   # UART-Pins für den Barcode-Scanner
-  uart_tx_pin: GPIO09
-  uart_rx_pin: GPIO10
+  uart_tx_pin: GPIO01
+  uart_rx_pin: GPIO03
 
   # Pin des Buzzer/Beeper
   beeper_pin: GPIO16
 
 packages:
-  barcode: github://SmartHome-yourself/barcode-scanner-for-esphome/barcode.yaml@main
+  barcode: github://robirr/barcode-scanner-for-esphome/barcode.yaml@main
