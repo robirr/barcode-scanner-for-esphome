@@ -17,7 +17,7 @@ substitutions:
   uart_rx_pin: GPIO03
 
   # Pin des Buzzer/Beeper
-  beeper_pin: GPIO16
+  # beeper_pin: GPIO16
 
 packages:
   barcode: github://robirr/barcode-scanner-for-esphome/barcode.yaml@main
