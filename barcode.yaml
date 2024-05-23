@@ -20,7 +20,7 @@ substitutions:
   # beeper_pin: GPIO16
 
 esp32:
-  board: wemos_d1_mini32
+  board: mhetesp32minikit
 
 # ----------------------------------
 # ----       CONFIG END         ----
