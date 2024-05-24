@@ -1,5 +1,5 @@
 substitutions:
-  name: "barcode-scanner"
+  name: "barcode-scanner-76a340"
   friendly_name: "Barcode Scanner"
 
   # Query ID für opentindb (https://opengtindb.org/api.php)
