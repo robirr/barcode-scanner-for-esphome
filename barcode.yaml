@@ -5,19 +5,9 @@ substitutions:
   # Query ID für opentindb (https://opengtindb.org/api.php)
   rest_opentindb_queryid: "400000000"
 
-  # I2C-Pins fürs Display
-  # display_i2c_sda: GPIO21
-  # display_i2c_scl: GPIO22
-
-  # I2C-Adresse des OLED Displays
-  # ssd1306_i2c_address: "0x3C"
-
   # UART-Pins für den Barcode-Scanner
   uart_tx_pin: GPIO01
   uart_rx_pin: GPIO03
-
-  # Pin des Buzzer/Beeper
-  # beeper_pin: GPIO16
 
 esp32:
   board: mhetesp32minikit
@@ -37,7 +27,7 @@ esphome:
       - lambda: id(last_ean).publish_state("Scan Barcode");
 
 dashboard_import:
-  package_import_url: github://SmartHome-yourself/barcode-scanner-for-esphome/barcode.yaml@main
+  package_import_url: github://robirr/barcode-scanner-for-esphome/barcode.yaml@main
   import_full_config: false
 
 ota:
@@ -100,7 +90,6 @@ text_sensor:
     id: last_product
     name: "${friendly_name} Product"
 
-
 uart:
   id: uart_bus
   baud_rate: 9600
@@ -119,65 +108,6 @@ uart:
             std::string s(bytes.begin(), bytes.end());
             return s;
 
-
-font:
-  - file: "_fonts/arial.ttf"
-    id: arial_font_18
-    size: 18
-  - file: "_fonts/arial.ttf"
-    id: arial_font
-    size: 20
-    glyphs:  |
-      ß!?"%()+*=,-_.:°ø0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZÄÜÖ abcdefghijklmnopqrstuvwxyzäüö€@<>/
-
-i2c:
-  sda: "${display_i2c_sda}"
-  scl: "${display_i2c_scl}"
-  scan: false
-  frequency: 400kHz
-  id: i2c_bus
-
-display:
-  - platform: ssd1306_i2c
-    model: "SSD1306 128x64"
-    address: "${ssd1306_i2c_address}"
-    update_interval: 250ms
-    lambda: |-
-      it.print(id(xpos_ean), 0, id(arial_font_18), id(last_ean).state.c_str());
-      it.print(id(xpos_brand), 19, id(arial_font), id(last_brand).state.c_str());
-      it.print(id(xpos_prod), 40, id(arial_font), id(last_product).state.c_str());
-
-      int x_start, y_start, height;
-      int brand_width, prod_width, ean_width;
-      it.get_text_bounds(0, 0, id(last_ean).state.c_str(), id(arial_font), TextAlign::TOP_LEFT, &x_start, &y_start, &ean_width, &height);
-      it.get_text_bounds(0, 0, id(last_brand).state.c_str(), id(arial_font), TextAlign::TOP_LEFT, &x_start, &y_start, &brand_width, &height);
-      it.get_text_bounds(0, 0, id(last_product).state.c_str(), id(arial_font), TextAlign::TOP_LEFT, &x_start, &y_start, &prod_width, &height);
-
-      if (id(xpos_ean) > (-1*ean_width)-30 && ean_width>128) {
-        id(xpos_ean) -= 10;
-      } else {
-        id(xpos_ean) = 0;
-      }
-
-      if (id(xpos_brand) > (-1*brand_width)-30 && brand_width>128) {
-        id(xpos_brand) -= 10;
-      } else {
-        id(xpos_brand) = 0;
-      }
-
-      int prod_len = strlen(id(last_product).state.c_str());
-      if (id(xpos_prod) > (-1*prod_width)-30 && prod_width>128) {
-        id(xpos_prod) -= 10;
-      } else {
-        id(xpos_prod) = 0;
-      }
-
-switch:
-  - platform: gpio
-    name: "${friendly_name} Buzzer"
-    pin: "${beeper_pin}"
-    id: beeper
-
 http_request:
   useragent: esphome/barcodescanner
   timeout: 10s
@@ -189,9 +119,6 @@ script:
       ean: std::string
     mode: restart
     then:
-      - switch.turn_on: beeper
-      - delay: 50ms
-      - switch.turn_off: beeper
       - script.execute: 
           id: getEanData
           ean: !lambda return ean.c_str();
@@ -231,24 +158,9 @@ script:
             - lambda: |-
                 ESP_LOGD("getEanData", "OpenTinDb result: %s\n", id(last_product).state.c_str());
 
-      - if:
-          condition:
-            text_sensor.state:
-              id: last_product
-              state: 'null'
-          then:
-              - switch.turn_on: beeper
-              - delay: 800ms
-              - switch.turn_off: beeper
-          else:
-              - switch.turn_on: beeper
-              - delay: 50ms
-              - switch.turn_off: beeper
-
       - delay: 10s
       - script.execute: clearProductData
       - lambda: id(last_ean).publish_state("Scan Barcode");
-
 
   - id: clearProductData
     mode: restart
@@ -337,4 +249,3 @@ script:
                           id(last_brand).publish_state(root["product"]["brands"]);
                           id(last_product).publish_state(root["product"]["product_name"]);
                         });
-                  
