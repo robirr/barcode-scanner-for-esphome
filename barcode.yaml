@@ -9,6 +9,9 @@ substitutions:
   uart_tx_pin: GPIO01
   uart_rx_pin: GPIO03
 
+  # Leere Definition für den Buzzer-Pin, um die Verwendung zu deaktivieren
+  beeper_pin: "GPIO00"  # Dummy-Pin
+
 esp32:
   board: mhetesp32minikit
 
@@ -119,9 +122,6 @@ script:
       ean: std::string
     mode: restart
     then:
-      - script.execute: 
-          id: getEanData
-          ean: !lambda return ean.c_str();
       - delay: 500ms
       - text_sensor.template.publish:
           id: barcode_scanner
