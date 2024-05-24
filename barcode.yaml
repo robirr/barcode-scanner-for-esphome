@@ -9,9 +9,6 @@ substitutions:
   uart_tx_pin: GPIO01
   uart_rx_pin: GPIO03
 
-  # Leere Definition für den Buzzer-Pin, um die Verwendung zu deaktivieren
-  beeper_pin: "GPIO00"  # Dummy-Pin
-
 esp32:
   board: mhetesp32minikit
 
