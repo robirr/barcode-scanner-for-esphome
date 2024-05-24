@@ -112,7 +112,7 @@ http_request:
   useragent: esphome/barcodescanner
   timeout: 10s
   id: http_request_data
-  
+
 script:
   - id: request_ean
     parameters:
@@ -133,7 +133,7 @@ script:
       - lambda: |-
           ESP_LOGD("getEanData", "Scanned EAN: %s\n", ean);
       - lambda: id(last_ean).publish_state(ean);
-      - script.execute: 
+      - script.execute:
           id: refreshProductNameOpenfoodfacts
           ean: !lambda return ean.c_str();
       - lambda: |-
@@ -149,7 +149,7 @@ script:
                   id: last_product
                   state: ''
           then:
-            - script.execute: 
+            - script.execute:
                 id: refreshProductNameOpenTin
                 ean: !lambda return ean.c_str();
             - lambda: |-
@@ -161,11 +161,11 @@ script:
 
   - id: clearProductData
     mode: restart
-    then: 
+    then:
       - lambda: id(last_ean).publish_state("");
       - lambda: id(last_brand).publish_state("");
       - lambda: id(last_product).publish_state("");
-      
+
   - id: refreshProductNameOpenTin
     mode: restart
     parameters:
@@ -174,7 +174,7 @@ script:
       - http_request.get:
           verify_ssl: false
           url: !lambda |-
-                  return (std::string) "https://opengtindb.org/?ean=" + ean + "&cmd=query&queryid=${rest_opentindb_queryid}";
+            return (std::string) "https://opengtindb.org/?ean=" + ean + "&cmd=query&queryid=${rest_opentindb_queryid}";
           on_response:
             then:
               - lambda: |-
@@ -191,7 +191,7 @@ script:
                     }
                     if(i == 5){
                       vendor_line = ptr;
-                    }                    
+                    }
                     ptr = strtok(NULL, delimiter);
                     i++;
                   }
@@ -201,7 +201,7 @@ script:
                     if(i == 1){
                       ESP_LOGD("opengtin", "Name: %s\n", ptr);
                       id(last_product).publish_state(ptr);
-                    }                    
+                    }
                     ptr = strtok(NULL, delimiter);
                     i++;
                   }
@@ -211,7 +211,7 @@ script:
                     if(i == 1){
                       ESP_LOGD("opengtin", "Firma: %s\n", ptr);
                       id(last_brand).publish_state(ptr);
-                    }                    
+                    }
                     ptr = strtok(NULL, delimiter);
                     i++;
                   }
@@ -224,7 +224,7 @@ script:
       - http_request.get:
           verify_ssl: false
           headers:
-            Content-Type: application/json          
+            Content-Type: application/json
           url: !lambda |-      
             std::string url = "https://world.openfoodfacts.org/api/v2/product/" + ean + "?fields=brands,product_name,code";
             ESP_LOGD("openFood", "API: %s\n", url.c_str());
@@ -234,9 +234,9 @@ script:
             then:
               - if:
                   condition:
-                     lambda: |-
-                        return status_code == 200;
-                  then:              
+                    lambda: |-
+                      return status_code == 200;
+                  then:
                     - lambda: |-
                         char *ptr;
                         ptr = (char*)id(http_request_data).get_string();
@@ -246,3 +246,11 @@ script:
                           id(last_brand).publish_state(root["product"]["brands"]);
                           id(last_product).publish_state(root["product"]["product_name"]);
                         });
+
+# Überschreiben der Buzzer-Definition mit einer leeren Konfiguration
+switch:
+  - platform: gpio
+    name: "${friendly_name} Buzzer"
+    pin: GPIO00  # Dummy-Pin, der nicht verwendet wird
+    id: beeper
+    internal: true  # macht den Buzzer-Schalter intern, damit er nicht genutzt wird
