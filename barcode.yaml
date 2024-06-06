@@ -90,6 +90,9 @@ text_sensor:
     id: last_product
     name: "${friendly_name} Product"
 
+logger:
+  baud_rate: 0
+
 uart:
   id: uart_bus
   baud_rate: 9600
