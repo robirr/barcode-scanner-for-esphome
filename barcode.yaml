@@ -10,7 +10,7 @@ substitutions:
   uart_rx_pin: GPIO03
 
 esp32:
-  board: mhetesp32minikit
+  board: firebeetle32
 
 # ----------------------------------
 # ----       CONFIG END         ----
